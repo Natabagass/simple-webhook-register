@@ -28,7 +28,7 @@ Delivery order is not guaranteed. Concurrent delivery improves throughput and pr
 
 ## Timebox and scope
 
-I used the assignment's three-hour cap as a hard scope boundary. Work started at approximately 17:10 WIB and the implementation, automated tests, and initial documentation were completed at approximately 19:00 WIB, for a total of about 1 hour and 50 minutes.
+I used the assignment's three-hour cap as a hard scope boundary. Work started at approximately 17:10 WIB. The core implementation and automated tests were completed at approximately 19:00 WIB. I then reviewed and refined the documentation until approximately 19:31 WIB. The total recorded work time was therefore about 2 hours and 21 minutes, which remained within the three-hour cap.
 
 Within that timebox, I prioritized a complete vertical flow:
 
@@ -41,4 +41,4 @@ Within that timebox, I prioritized a complete vertical flow:
 - Verify core behavior through type checking, a production build, and automated tests.
 - Document the selected decisions, trade-offs, and AI-assisted workflow.
 
-I deliberately stopped short of production infrastructure and operational features such as authentication, webhook signing, complete SSRF protection, a distributed queue, distributed locking and rate limiting, per-customer fairness, metrics and alerts, dead-letter queues, and manual replay. With additional time, I would prioritize those items based on operational risk rather than expanding the assignment indiscriminately.
+I deliberately stopped short of production infrastructure and operational features such as authentication, webhook signing, complete SSRF protection, a distributed queue, distributed locking and rate limiting, per-customer fairness, metrics and alerts, dead-letter queues, and manual replay. The remaining time in the cap was reserved for a manual walkthrough and final submission checks rather than adding more features. With additional time beyond the assignment, I would prioritize production improvements based on operational risk rather than expanding the solution indiscriminately.

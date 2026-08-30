@@ -88,8 +88,6 @@ The status moves from `pending` to `delivered`, or to `failed` after a permanent
 ## Documentation
 
 - Short decision record: [docs/DECISIONS.md](./docs/DECISIONS.md).
-- Four required interview decisions: [docs/INTERVIEW_DECISIONS.md](./docs/INTERVIEW_DECISIONS.md).
-- Detailed trade-off reference: [docs/TRADE_OFFS.md](./docs/TRADE_OFFS.md).
 - Implementation and review guide: [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md).
 - AI-assisted workflow: [docs/PROMPTS.md](./docs/PROMPTS.md).
 

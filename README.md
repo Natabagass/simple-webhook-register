@@ -2,23 +2,45 @@
 
 A small service that accepts events, persists them, and reliably delivers their JSON payloads to customer endpoints through a background worker.
 
-## Run the service
+## Quick start
 
 Requirement: Node.js 20 or newer.
+
+### Automatic demo
+
+Use this command to quickly demonstrate temporary failure, retry, successful delivery, idempotency, and rate limiting:
+
+```bash
+npm install && npm run demo
+```
+
+The demo starts temporary servers, prints every result, and shuts them down automatically. It uses a 100 ms retry only for demonstration; the actual service keeps the documented production schedule.
+
+### Run the actual service
+
+The assignment's one-line run command is:
 
 ```bash
 npm install && npm run dev
 ```
 
-The service listens on `http://localhost:3000`. Every setting has a default value; copy `.env.example` to `.env` only when customization is needed.
+The service listens on `http://localhost:3000`. Every setting has a default value, so `.env` is optional. Copy `.env.example` to `.env` only when customization is needed.
+
+### Run all verification checks
+
+```bash
+npm run verify
+```
+
+This runs TypeScript type checking, the production build, and all automated tests.
+
+## Manual walkthrough
 
 Start the mock customer in a second terminal:
 
 ```bash
 npm run mock:customer
 ```
-
-## End-to-end demo
 
 Register the mock endpoint:
 
@@ -66,10 +88,20 @@ The status moves from `pending` to `delivered`, or to `failed` after a permanent
 ## Documentation
 
 - Short decision record: [docs/DECISIONS.md](./docs/DECISIONS.md).
+- Four required interview decisions: [docs/INTERVIEW_DECISIONS.md](./docs/INTERVIEW_DECISIONS.md).
+- Detailed trade-off reference: [docs/TRADE_OFFS.md](./docs/TRADE_OFFS.md).
 - Implementation and review guide: [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md).
 - AI-assisted workflow: [docs/PROMPTS.md](./docs/PROMPTS.md).
 
 ## Verification
+
+Run every verification step with one command:
+
+```bash
+npm run verify
+```
+
+Or run each step separately:
 
 ```bash
 npm run typecheck

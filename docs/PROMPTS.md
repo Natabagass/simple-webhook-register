@@ -210,7 +210,7 @@ AI identified high-risk behaviors, made worker dependencies replaceable in tests
 
 ### Result
 
-Type checking, the production build, and all 9 automated tests passed.
+Type checking, the production build, and all 12 automated tests passed.
 
 ## 8. Trade-off and interview documentation
 
@@ -263,7 +263,7 @@ AI ran the checks and corrected test discovery so compiled test files were not c
 
 - Type checking passed.
 - Production build passed.
-- All 9 automated tests passed.
+- All 12 automated tests passed.
 - Setup, decisions, workflow, and production boundaries were documented.
 
 ## Human decisions and review

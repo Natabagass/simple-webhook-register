@@ -1,11 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { loadConfig } from '../src/config.js'
 import { WebhookDatabase } from '../src/database.js'
-import { DeliveryWorker } from '../src/worker.js'
+import { DeliveryWorker, RETRY_DELAYS_MS } from '../src/worker.js'
 
 const openDatabases: WebhookDatabase[] = []
 
-function setup(fetchImplementation: typeof fetch, retryDelaysMs: readonly number[] = [1000]) {
+function setup(
+  fetchImplementation: typeof fetch,
+  retryDelaysMs: readonly number[] = [1000],
+  random: () => number = () => 0.5,
+  timeoutMs = 20,
+) {
   const database = new WebhookDatabase(':memory:')
   openDatabases.push(database)
   let currentTime = new Date('2026-01-01T00:00:00.000Z')
@@ -17,13 +22,13 @@ function setup(fetchImplementation: typeof fetch, retryDelaysMs: readonly number
     idempotencyKey: null,
     createdAt: currentTime.toISOString(),
   }).event
-  const config = { ...loadConfig({}), WEBHOOK_TIMEOUT_MS: 20 }
+  const config = { ...loadConfig({}), WEBHOOK_TIMEOUT_MS: timeoutMs }
   const worker = new DeliveryWorker({
     database,
     config,
     fetchImplementation,
     retryDelaysMs,
-    random: () => 0.5,
+    random,
     now: () => currentTime,
   })
   return {
@@ -39,6 +44,19 @@ afterEach(() => {
 })
 
 describe('delivery worker', () => {
+  it('uses the documented production retry schedule', () => {
+    expect(RETRY_DELAYS_MS).toEqual([
+      5_000,
+      30_000,
+      2 * 60_000,
+      10 * 60_000,
+      30 * 60_000,
+      60 * 60_000,
+      2 * 60 * 60_000,
+      4 * 60 * 60_000,
+    ])
+  })
+
   it('delivers a pending event and sends stable identifying headers', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }))
     const { database, worker } = setup(fetchMock)
@@ -66,6 +84,33 @@ describe('delivery worker', () => {
     await worker.runOnce()
     expect(database.getEvent('evt_test')).toMatchObject({ status: 'delivered', attempt_count: 2 })
     expect(database.getAttempts('evt_test')).toHaveLength(2)
+  })
+
+  it('applies jitter to the next retry time', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 503 }))
+    const { database, worker } = setup(fetchMock, [1000], () => 0)
+
+    await worker.runOnce()
+
+    expect(database.getEvent('evt_test')).toMatchObject({
+      status: 'pending',
+      next_attempt_at: '2026-01-01T00:00:00.800Z',
+    })
+  })
+
+  it('times out a slow endpoint and schedules a retry', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation((_input, init) => new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+    }))
+    const { database, worker } = setup(fetchMock, [1000], () => 0.5, 5)
+
+    await worker.runOnce()
+
+    expect(database.getEvent('evt_test')).toMatchObject({
+      status: 'pending',
+      attempt_count: 1,
+      last_error: 'Customer endpoint timed out after 5ms',
+    })
   })
 
   it('fails immediately for a permanent 4xx response', async () => {
